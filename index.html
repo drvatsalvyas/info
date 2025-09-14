@@ -1,150 +1,425 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pediatrician Card</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctor Web Card</title>
   <style>
-    :root {
-      --teal:#3aa5a0;
-      --coral:#ff9b85;
-      --yellow:#ffd97a;
-      --ink:#2f3a4a;
-      --bg-grad: linear-gradient(160deg,#e0f7f4,#fff3f0);
+    :root{
+      --teal: #2fb3bd;
+      --teal-dark: #2399a2;
+      --coral: #f0654e;
+      --blue-bg:#aee4fc;
+      --ink: #1f2a2e;
+      --text: #345a63;
+      --card-max-width: 420px;
+
+      /* tag colors */
+      --tag-bg: #ffe3a3;
+      --tag-text:#2a4f57;
+      --tag-shadow: rgba(0,0,0,.06);
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body {
-      font-family:"Nunito",sans-serif;
-      background:var(--bg-grad);
+    *,*::before,*::after{box-sizing:border-box}
+
+    /* Page background: blobs + gradient */
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
       min-height:100vh;
+      padding:16px;
+      background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140' preserveAspectRatio='xMidYMid meet'><circle cx='36' cy='36' r='28' fill='%232fb3bd33'/></svg>") no-repeat,
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' preserveAspectRatio='xMidYMid meet'><rect x='20' y='20' width='120' height='100' rx='22' fill='%23f0654e22'/></svg>") no-repeat,
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0)),
+        var(--blue-bg);
+      background-size:
+        clamp(80px, 24vw, 140px),
+        clamp(120px, 34vw, 200px),
+        100% 100%,
+        auto;
+      background-position:
+        left clamp(10px, 3vw, 20px) top clamp(10px, 3vw, 20px),
+        right clamp(12px, 3.5vw, 24px) bottom clamp(12px, 3.5vw, 24px),
+        center,
+        0 0;
       display:flex;
-      align-items:center;
       justify-content:center;
-      padding:20px;
+      align-items:center;
+      position:relative;
+      overflow:hidden;
     }
-    .card {
-      background:#fff;
-      border-radius:24px;
-      box-shadow:0 6px 16px rgba(0,0,0,.15);
+
+    /* Floating background animation */
+    @keyframes float-drift {
+      0%   { transform: translate(0px, 0px) rotate(-2deg) scale(1); }
+      25%  { transform: translate(14px, -16px) rotate(4deg) scale(1.03); }
+      50%  { transform: translate(0px, -28px) rotate(-2deg) scale(0.98); }
+      75%  { transform: translate(-14px, -16px) rotate(3deg) scale(1.01); }
+      100% { transform: translate(0px, 0px) rotate(-2deg) scale(1); }
+    }
+
+    /* Stronger inner wiggle (animate svg, not container) */
+    @keyframes wiggle-bob {
+      0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+      25%  { transform: translate(var(--dx, 10px), calc(var(--dy, 18px) * -0.6)) rotate(-7deg) scale(1.05); }
+      50%  { transform: translate(0, calc(var(--dy, 18px) * -1)) rotate(7deg) scale(0.98); }
+      75%  { transform: translate(calc(var(--dx, 10px) * -0.6), calc(var(--dy, 18px) * -0.6)) rotate(-3deg) scale(1.02); }
+      100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    }
+
+    /* Background animals (darker) */
+    .bg-animal{
+      position:fixed;
+      width:clamp(64px, 14vw, 120px);
+      height:auto;
+      z-index:0;
+      opacity:0.5;
+      pointer-events:none;
+      will-change: transform;
+      filter: brightness(88%) contrast(110%) drop-shadow(0 8px 16px rgba(0,0,0,0.06));
+      animation: float-drift ease-in-out infinite alternate;
+    }
+    .bg-bear { top:8%; left:6%;  animation-duration: 11s;  animation-delay: 0s; }
+    .bg-bunny{ bottom:10%; right:8%; animation-duration: 13s; animation-delay: 3s; }
+    .bg-bird { top:36%; right:18%; animation-duration: 15s; animation-delay: 6s; }
+    .bg-fox  { top:22%; left:16%;  animation-duration:12s; animation-delay:1.4s; }
+    .bg-cat  { bottom:18%; right:16%; animation-duration:15s; animation-delay:3.2s; }
+    .bg-fish { top:68%; left:10%;  animation-duration:14s; animation-delay:2.1s; }
+
+    /* Card */
+    .card{
       width:100%;
-      max-width:360px;
+      max-width:var(--card-max-width);
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);
       overflow:hidden;
       position:relative;
-    }
-    .card::after {
-      content:"";
-      position:absolute;
-      bottom:0;left:0;right:0;
-      height:60px;
-      background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'><path fill='%23ff9b85' fill-opacity='0.25' d='M0,288L60,288C120,288,240,288,360,256C480,224,600,160,720,160C840,160,960,224,1080,229.3C1200,235,1320,181,1380,154.7L1440,128L1440,320L0,320Z'></path></svg>") no-repeat bottom/cover;
-    }
-    header {
       text-align:center;
-      padding:24px 16px 16px;
+      padding-bottom:20px;
+      z-index:2;
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'><circle cx='28' cy='28' r='22' fill='%232fb3bd22'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><rect x='16' y='16' width='128' height='96' rx='18' fill='%23f0654e12'/></svg>"),
+        linear-gradient(180deg, rgba(95,227,231,0.06), rgba(255,255,255,0));
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-size: clamp(52px,14vw,84px), clamp(80px,22vw,120px), 100% 100%;
+      background-position:
+        left clamp(10px,2.6vw,16px) top clamp(10px,2.6vw,16px),
+        right clamp(12px,3vw,18px) bottom clamp(12px,3vw,18px),
+        center;
+      padding-top: 8px;
     }
-    .avatar {
-      width:110px;height:110px;
-      border-radius:50%; /* circle */
-      border:4px solid transparent;
-      background:linear-gradient(135deg,var(--teal),var(--coral)) padding-box,
-                 linear-gradient(135deg,var(--teal),var(--coral)) border-box;
-      object-fit:cover;
-      box-shadow:0 4px 12px rgba(0,0,0,.15);
-    }
-    h2 {
-      margin-top:12px;
-      font-size:20px;
-      font-weight:700;
-      color:var(--ink);
-    }
-    p.role {
-      font-size:14px;
-      color:#555;
-    }
-    .badges {
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      gap:8px;
-      margin-top:12px;
-    }
-    .badge {
-      font-size:12px;
-      background:var(--yellow);
-      padding:6px 10px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      font-weight:600;
-      color:var(--ink);
-    }
-    .cta {
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      padding:20px;
-    }
-    .btn {
+
+    header{
+      padding:16px 20px 8px;
       display:flex;
       align-items:center;
       justify-content:center;
       gap:10px;
-      padding:14px;
-      border-radius:999px;
+      position:relative;
+      z-index:3;
+      text-shadow:0 1px 2px rgba(0,0,0,.12);
+    }
+    .acorn-logo svg{ width:clamp(28px, 8vw, 40px); height:clamp(28px, 8vw, 40px); display:block; flex-shrink:0; }
+    .header-title{ font-size:clamp(18px, 4.5vw, 20px); font-weight:600; color:var(--teal-dark); line-height:1.1; }
+
+    /* Doctor portrait & info */
+    .doctor-photo{
+      width:clamp(96px, 26vw, 120px);
+      height:clamp(96px, 26vw, 120px);
+      border-radius:50%;
+      object-fit:cover;
+      object-position:center center;
+      margin:10px auto 0;
+      display:block;
+      border:4px solid var(--teal);
+      position:relative;
+      z-index:3;
+      box-shadow:0 4px 10px rgba(0,0,0,.12);
+      background:#e9f7f7;
+    }
+    .doctor-info{ margin-top:12px; position:relative; z-index:3; padding:0 16px; }
+    .doctor-info h2{ margin:6px 0 4px; font-size:clamp(18px, 4.8vw, 20px); color:var(--ink); }
+    .doctor-info p{ margin:0; font-size:clamp(13px, 3.8vw, 14px); color:#2a4f57; }
+
+    /* NEW: specialty tags (pills) */
+    .tags{
+      margin:14px 0 6px;
+      padding:0;
+      list-style:none;
+      display:flex;            /* flex container for pills */
+      flex-wrap:wrap;          /* wrap to next line as needed */
+      justify-content:center;  /* center like screenshot */
+      align-items:center;      /* vertical centering */
+      gap:10px 12px;           /* row/column gaps */
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
       font-weight:600;
-      font-size:15px;
+      font-size:clamp(13px, 3.6vw, 14px);
+      border-radius:9999px;            /* pill shape */
+      box-shadow:0 2px 6px var(--tag-shadow);
+      line-height:1;
+      white-space:nowrap;
+    }
+    .tag .ico{ display:inline-block; font-size:16px; line-height:1; }
+
+    .cta{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      padding:20px;
+      position:relative;
+      z-index:3;
+    }
+
+    .btn-call { background:#2fb3bd; }            /* teal */
+.btn-call:hover { background:#2399a2; }
+
+
+    .btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      width:100%;
+      max-width:clamp(240px, 70vw, 280px);
+      padding:clamp(10px, 2.8vw, 12px);
+      border-radius:999px;
+      background:var(--teal);
+      color:#fff;
+      font-weight:600;
       border:none;
       cursor:pointer;
+      box-shadow:0 4px 12px rgba(47,179,189,.25);
+      transition:.18s ease;
       text-decoration:none;
-      transition:.2s;
-      color:#fff;
+      line-height:1.2;
+      font-size:clamp(14px, 3.9vw, 16px);
     }
-    .btn.whatsapp {background:#25d366;box-shadow:0 3px 10px rgba(37,211,102,.3);}
-    .btn.call {background:var(--teal);box-shadow:0 3px 10px rgba(58,165,160,.3);}
-    .btn.insta {background:#e1306c;box-shadow:0 3px 10px rgba(225,48,108,.3);}
-    .btn.fb {background:#1877f2;box-shadow:0 3px 10px rgba(24,119,242,.3);}
-    .btn:hover {opacity:.9;}
-    footer {
-      text-align:center;
-      font-size:12px;
-      padding:10px;
-      color:#777;
-      position:relative;
+    .btn:hover{ background:var(--teal-dark); transform: translateY(-2px); }
+
+    /* Inside-card animated ornaments */
+    .animal {
+      position:absolute;
+      width:clamp(44px, 12vw, 64px);
+      height:auto;
       z-index:1;
+      opacity:0.95;
+      pointer-events:none;
+      will-change: transform, opacity;
+    }
+    .animal svg { display:block; transform-origin:center; will-change: transform; animation: wiggle-bob var(--dur, 6.5s) ease-in-out infinite; }
+    .animal.bear  { top: 10px; right: 12px;                               --dx: 10px; --dy: 18px; --dur: 7.2s; }
+    .animal.bunny { bottom: 14px; left: 12px;                             --dx: 12px; --dy: 20px; --dur: 6.8s; }
+    .animal.bird  { top: 48%; left: 10%; transform: translateY(-50%);     --dx: 14px; --dy: 22px; --dur: 7.6s; }
+    .animal.fox   { top: 14px; left: 14px;                                --dx: 11px; --dy: 19px; --dur: 7.4s; }
+    .animal.cat   { bottom: 18px; right: 18px;                            --dx: 9px;  --dy: 16px; --dur: 6.9s; }
+
+    /* Tagline footer (wave + text) */
+    .care-footer{
+      position: relative;
+      margin-top: 6px;
+      padding: 28px 12px 16px;
+      z-index: 2;
+    }
+    .care-wave{
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      width: 100%;
+      height: 88px;
+      display: block;
+      z-index: 0;
+      filter: drop-shadow(0 -4px 12px rgba(0,0,0,.08));
+    }
+    .care-wave path{ fill: rgba(240,101,78,.16); }
+    .care-text{
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #6d8288;
+      font-size: clamp(13px, 3.6vw, 14px);
+      line-height: 1.2;
+    }
+    .care-text .heart{ font-size: 16px; line-height: 1; filter: drop-shadow(0 1px 0 rgba(0,0,0,.05)); }
+
+    /* Responsive tweaks */
+    @media (max-width:420px){
+      .animal{ width:clamp(36px, 14vw, 52px); }
+      .bg-animal{ width:clamp(48px, 18vw, 96px); }
+      .card{ padding: 18px 18px 22px; }
+      .care-wave{ height: 76px; }
+    }
+    @media (max-width:360px){
+      body{ padding:10px; }
+      .bg-bear { left:4%; top:6%; }
+      .bg-bunny { right:4%; bottom:6%; }
+      .bg-bird { right:12%; top:28%; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .bg-animal, .animal svg { animation: none !important; }
     }
   </style>
 </head>
 <body>
-  <main class="card">
+  <!-- Background animals -->
+  <div class="bg-animal bg-bear" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <circle cx="20" cy="20" r="8" fill="#b97a57"/>
+      <circle cx="44" cy="20" r="8" fill="#b97a57"/>
+      <circle cx="32" cy="36" r="20" fill="#d9a066"/>
+      <circle cx="26" cy="32" r="4" fill="#000"/>
+      <circle cx="38" cy="32" r="4" fill="#000"/>
+      <circle cx="32" cy="40" r="5" fill="#7d3f24"/>
+    </svg>
+  </div>
+  <div class="bg-animal bg-bunny" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <ellipse cx="20" cy="20" rx="6" ry="14" fill="#eee"/>
+      <ellipse cx="44" cy="20" rx="6" ry="14" fill="#eee"/>
+      <circle cx="32" cy="40" r="18" fill="#fff"/>
+      <circle cx="26" cy="38" r="3" fill="#000"/>
+      <circle cx="38" cy="38" r="3" fill="#000"/>
+      <ellipse cx="32" cy="46" rx="6" ry="4" fill="#f28b82"/>
+    </svg>
+  </div>
+  <div class="bg-animal bg-bird" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <circle cx="32" cy="32" r="18" fill="#4fc3f7"/>
+      <circle cx="40" cy="28" r="5" fill="#fff"/>
+      <circle cx="42" cy="28" r="2" fill="#000"/>
+      <polygon points="14,32 4,28 14,24" fill="#ffb300"/>
+    </svg>
+  </div>
+  <div class="bg-animal bg-fox" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <polygon points="12,40 24,18 36,40" fill="#ff8a65"/>
+      <circle cx="22" cy="28" r="2" fill="#000"/>
+      <circle cx="30" cy="28" r="2" fill="#000"/>
+      <polygon points="40,34 54,30 40,26" fill="#ffd54f"/>
+    </svg>
+  </div>
+  <div class="bg-animal bg-cat" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <circle cx="32" cy="36" r="18" fill="#90a4ae"/>
+      <polygon points="18,22 26,18 26,26" fill="#90a4ae"/>
+      <polygon points="46,22 38,18 38,26" fill="#90a4ae"/>
+      <circle cx="26" cy="34" r="3" fill="#000"/>
+      <circle cx="38" cy="34" r="3" fill="#000"/>
+      <rect x="30" y="40" width="4" height="2" fill="#000"/>
+    </svg>
+  </div>
+  <div class="bg-animal bg-fish" aria-hidden="true">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+      <ellipse cx="30" cy="36" rx="16" ry="10" fill="#4db6ac"/>
+      <polygon points="44,36 58,42 58,30" fill="#26a69a"/>
+      <circle cx="22" cy="34" r="2" fill="#000"/>
+    </svg>
+  </div>
+
+  <!-- Main card -->
+  <main class="card" role="region" aria-labelledby="doctorTitle">
+    <!-- Ornaments -->
+    <div class="animal bear" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <circle cx="20" cy="20" r="8" fill="#b97a57"/>
+        <circle cx="44" cy="20" r="8" fill="#b97a57"/>
+        <circle cx="32" cy="36" r="20" fill="#d9a066"/>
+        <circle cx="26" cy="32" r="4" fill="#000"/>
+        <circle cx="38" cy="32" r="4" fill="#000"/>
+        <circle cx="32" cy="40" r="5" fill="#7d3f24"/>
+      </svg>
+    </div>
+    <div class="animal bunny" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <ellipse cx="20" cy="20" rx="6" ry="14" fill="#eee"/>
+        <ellipse cx="44" cy="20" rx="6" ry="14" fill="#eee"/>
+        <circle cx="32" cy="40" r="18" fill="#fff"/>
+        <circle cx="26" cy="38" r="3" fill="#000"/>
+        <circle cx="38" cy="38" r="3" fill="#000"/>
+        <ellipse cx="32" cy="46" rx="6" ry="4" fill="#f28b82"/>
+      </svg>
+    </div>
+    <div class="animal bird" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <circle cx="32" cy="32" r="18" fill="#4fc3f7"/>
+        <circle cx="40" cy="28" r="5" fill="#fff"/>
+        <circle cx="42" cy="28" r="2" fill="#000"/>
+        <polygon points="14,32 4,28 14,24" fill="#ffb300"/>
+      </svg>
+    </div>
+    <div class="animal fox" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <polygon points="12,40 24,18 36,40" fill="#ff8a65"/>
+        <circle cx="22" cy="28" r="2" fill="#000"/>
+        <circle cx="30" cy="28" r="2" fill="#000"/>
+        <polygon points="40,34 54,30 40,26" fill="#ffd54f"/>
+      </svg>
+    </div>
+    <div class="animal cat" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <circle cx="32" cy="36" r="18" fill="#90a4ae"/>
+        <polygon points="18,22 26,18 26,26" fill="#90a4ae"/>
+        <polygon points="46,22 38,18 38,26" fill="#90a4ae"/>
+        <circle cx="26" cy="34" r="3" fill="#000"/>
+        <circle cx="38" cy="34" r="3" fill="#000"/>
+        <rect x="30" y="40" width="4" height="2" fill="#000"/>
+      </svg>
+    </div>
+
     <header>
-      <img src="WhatsApp Image 2025-09-05 at 5.39.19 PM.jpeg" alt="Doctor Photo" class="avatar">
-      <h2>Dr. Vatsal Vyas</h2>
-      <p class="role">Paediatrician</p>
-      <div class="badges">
-        <span class="badge">🍼 Child Care</span>
-        <span class="badge">💉 Vaccination</span>
-        <span class="badge">📈 Growth Monitoring</span>
+      <div class="acorn-logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <path d="M8 20c0-4 12-12 24-12s24 8 24 12c0 2-2 4-4 4H12c-2 0-4-2-4-4z" fill="#d86b56"/>
+          <path d="M12 24c0 18 10 30 20 30s20-12 20-30H12z" fill="#f3b19e"/>
+          <path d="M6 16h20" stroke="#7d3a2f" stroke-width="4" stroke-linecap="round"/>
+        </svg>
       </div>
+      <div id="doctorTitle" class="header-title">Doctor Profile</div>
     </header>
 
-    <section class="cta">
-      <a href="https://wa.me/918469291096" class="btn whatsapp" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" height="20" alt=""> WhatsApp
-      </a>
-      <a href="tel:+918469291096" class="btn call">📞 Call Now</a>
-      <a href="https://www.instagram.com/dr.vatsalvyas/" class="btn insta" target="_blank" rel="noopener">
-        📷 Instagram
-      </a>
-      <a href="https://facebook.com/" class="btn fb" target="_blank" rel="noopener">
-        📘 Facebook
-      </a>
+    <img src="WhatsApp Image 2025-09-05 at 5.39.19 PM.jpeg" alt="Portrait of Dr. John Smith, Cardiologist" class="doctor-photo" />
+
+    <div class="doctor-info" aria-hidden="false">
+      <h2>Dr.vatsal vyas</h2>
+      <p>Paediatrician</p>
+    </div>
+
+    <!-- NEW tags like in the screenshot -->
+    <ul class="tags" aria-label="Services">
+      <li class="tag"><span class="ico" aria-hidden="true">🍼</span><span>Child Care</span></li>
+      <li class="tag"><span class="ico" aria-hidden="true">💉</span><span>Vaccination</span></li>
+      <li class="tag"><span class="ico" aria-hidden="true">📈</span><span>Growth Monitoring</span></li>
+    </ul>
+
+    <section class="cta" aria-label="contact links">
+      <a class="btn" href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Open Instagram profile">Instagram</a>
+      <a class="btn" href="https://facebook.com/" target="_blank" rel="noopener" aria-label="Open Facebook profile">Facebook</a>
+      <a class="btn" href="https://wa.me/+918469291096" target="_blank" rel="noopener" aria-label="Open WhatsApp chat">WhatsApp</a>
+      <a class="btn btn-call" href="tel:+918469291096" aria-label="Call the clinic number">📞 Call Now</a>
     </section>
 
-    <footer>
-      ❤️ Caring for little ones with love
-    </footer>
+    <!-- Tagline footer (wave + text) -->
+    <section class="care-footer" role="contentinfo" aria-label="care tagline">
+      <svg class="care-wave" viewBox="0 0 1200 120" preserveAspectRatio="none" focusable="false" aria-hidden="true">
+        <path d="M0,24 C150,84 300,-4 450,36 C600,76 750,28 900,56 C1050,84 1200,40 1200,40 L1200,120 L0,120 Z"></path>
+      </svg>
+      <p class="care-text"><span class="heart" aria-hidden="true">❤️</span> Caring for little ones with love</p>
+    </section>
   </main>
 </body>
 </html>
